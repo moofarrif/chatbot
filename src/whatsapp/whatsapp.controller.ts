@@ -7,10 +7,18 @@ export class WhatsAppController {
   constructor(private readonly whatsappService: WhatsAppService) {}
 
   @Post('send-message')
-  async sendMessage() {
-    const phone = '1234567890'; // El número de teléfono del destinatario
-    const message = 'Hola, ¿cómo puedo ayudarte?'; // El mensaje a enviar
+  async sendMessage(@Req() req: Request, @Res() res: Response) {
+
+    console.log('req.body:', JSON.stringify(req.body.entry[0].changes, null, 2));
+    const {
+      from: phone,
+      text: { body: message },
+    } = req.body?.entry[0]?.changes[0]?.value?.messages[0];
+
+    
+
     await this.whatsappService.handleIncomingMessage(phone, message);
+    res.status(200).send('Mensaje enviado');
   }
 
   @Get('send-message')
@@ -30,3 +38,36 @@ export class WhatsAppController {
     }
   }
 }
+
+// req.body: [
+//   {
+//     "value": {
+//       "messaging_product": "whatsapp",
+//       "metadata": {
+//         "display_phone_number": "15551543463",
+//         "phone_number_id": "598337616704479"
+//       },
+//       "statuses": [
+//         {
+//           "id": "wamid.HBgMNTczMTMzODUxMTE0FQIAERgSQjg0NzIyMkE1NzAwMkIwQ0Y4AA==",
+//           "status": "sent",
+//           "timestamp": "1745634177",
+//           "recipient_id": "573133851114",
+//           "conversation": {
+//             "id": "8b919cbba43b51f2f1a9093649bd04ca",
+//             "expiration_timestamp": "1745715900",
+//             "origin": {
+//               "type": "utility"
+//             }
+//           },
+//           "pricing": {
+//             "billable": true,
+//             "pricing_model": "CBP",
+//             "category": "utility"
+//           }
+//         }
+//       ]
+//     },
+//     "field": "messages"
+//   }
+// ]

@@ -4,22 +4,12 @@ import axios from 'axios';
 
 @Injectable()
 export class WhatsAppService {
-  // No inicialices la propiedad aquí, sino en el constructor
-  // private accessToken: string;
-  // private phoneNumberId: string;
-
   accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
   phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  // constructor(private configService: ConfigService) {
-  //   // Aquí es donde debes inicializar las propiedades con el valor de las variables de entorno
-  //   this.accessToken = this.configService.get('WHATSAPP_ACCESS_TOKEN');
-  //   this.phoneNumberId = this.configService.get('WHATSAPP_PHONE_NUMBER_ID');
-  // }
 
   async handleIncomingMessage(from: string, text: string) {
     console.log(`Mensaje de ${from}: ${text}`);
 
-    // Aquí puedes manejar lógica condicional para flujo tipo chatbot
     const reply = this.generateReply(text);
 
     await this.sendMessage(from, reply);
@@ -28,29 +18,23 @@ export class WhatsAppService {
   private async sendMessage(to: string, body: string) {
     const url = `https://graph.facebook.com/v22.0/${this.phoneNumberId}/messages`;
     const headers = {
-      // Authorization: `Bearer ${this.accessToken}`,
+      Authorization: `Bearer ${this.accessToken}`,
       'Content-Type': 'application/json',
     };
 
-    // const a = {
-    //   messaging_product: 'whatsapp',
-    //   to: '',
-    //   type: 'template',
-    //   template: { name: 'hello_world', language: { code: 'en_US' } },
-    // };
-
-    const data = {
+    const a = {
       messaging_product: 'whatsapp',
       to,
       type: 'template',
-      text: { body },
+      template: { name: 'hello_world', language: { code: 'en_US' } },
     };
 
     try {
-      const response = await axios.post(url, data, { headers });
+      const response = await axios.post(url, a, { headers });
       console.log('Mensaje enviado:', response.data);
     } catch (error) {
-      console.error('Error al enviar el mensaje:', error);
+      
+      console.error('Error al enviar el mensaje:', error.response?.data || error.message);
     }
   }
 
